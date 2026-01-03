@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkBoard - Worker View</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container mt-4 mb-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="admin-header mb-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1>WorkBoard</h1>
+                        <p class="text-muted mb-0">Worker Salary & Payment Tracker</p>
+                    </div>
+                    <a href="login.html" class="btn btn-primary">Admin Login</a>
+                </div>
+
+                <!-- Worker Selection -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <label for="workerSelect" class="form-label fw-bold">Select Worker</label>
+                        <select class="form-select form-select-lg" id="workerSelect">
+                            <option value="">-- Select a worker --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Worker Profile Card -->
+                <div id="workerProfile" class="worker-profile-card d-none">
+                    <h3 id="workerName"></h3>
+                    <div class="worker-id">ID: <span id="workerId"></span></div>
+                    <div class="worker-role">Job Role: <span id="workerRole"></span></div>
+                </div>
+
+                <!-- Balance Summary Card -->
+                <div id="balanceCard" class="balance-card d-none">
+                    <h4>Summary</h4>
+                    <div class="balance-item">
+                        <span class="label">Total Earned</span>
+                        <span class="value text-currency" id="totalEarned">LKR 0.00</span>
+                    </div>
+                    <div class="balance-item">
+                        <span class="label">Total Paid</span>
+                        <span class="value text-currency" id="totalPaid">LKR 0.00</span>
+                    </div>
+                    <div class="balance-item">
+                        <span class="label">Balance</span>
+                        <span class="value text-currency" id="balance">LKR 0.00</span>
+                    </div>
+                </div>
+
+                <!-- Work History Table -->
+                <div id="workHistorySection" class="card mb-4 d-none">
+                    <div class="card-header">
+                        <h5 class="mb-0">Work History</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Work Type</th>
+                                        <th class="text-end">Earned Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workHistoryBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment History Table -->
+                <div id="paymentHistorySection" class="card mb-4 d-none">
+                    <div class="card-header">
+                        <h5 class="mb-0">Payment History</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Payment Type</th>
+                                        <th class="text-end">Amount</th>
+                                        <th>Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="paymentHistoryBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state">
+                    <p>Please select a worker to view their records.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Firestore only) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <script src="js/firebase.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/worker.js"></script>
+    <script src="js/work.js"></script>
+    <script src="js/payment.js"></script>
+    <script src="js/worker-view.js"></script>
+</body>
+</html>
+
