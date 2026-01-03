@@ -16,8 +16,12 @@ async function addWorkRecord(workerId, date, workType, earnedAmount) {
     }
 
     try {
+        if (!window.db) {
+            return { success: false, message: 'Firestore not initialized. Please refresh the page.' };
+        }
+
         // Validate worker exists
-        const workerDoc = await db.collection('workers').doc(workerId).get();
+        const workerDoc = await window.db.collection('workers').doc(workerId).get();
         if (!workerDoc.exists) {
             return { success: false, message: 'Worker not found' };
         }
@@ -40,7 +44,7 @@ async function addWorkRecord(workerId, date, workType, earnedAmount) {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        const docRef = await db.collection('works').add(workRecord);
+        const docRef = await window.db.collection('works').add(workRecord);
         
         return { 
             success: true, 
@@ -58,7 +62,8 @@ async function addWorkRecord(workerId, date, workType, earnedAmount) {
  */
 async function getWorkRecordsByWorker(workerId) {
     try {
-        const snapshot = await db.collection('works')
+        if (!window.db) return [];
+        const snapshot = await window.db.collection('works')
             .where('workerId', '==', workerId)
             .orderBy('date', 'desc')
             .get();
@@ -78,7 +83,8 @@ async function getWorkRecordsByWorker(workerId) {
  */
 async function getAllWorkRecords() {
     try {
-        const snapshot = await db.collection('works')
+        if (!window.db) return [];
+        const snapshot = await window.db.collection('works')
             .orderBy('date', 'desc')
             .get();
         
@@ -97,7 +103,8 @@ async function getAllWorkRecords() {
  */
 async function getWorkRecord(id) {
     try {
-        const doc = await db.collection('works').doc(id).get();
+        if (!window.db) return null;
+        const doc = await window.db.collection('works').doc(id).get();
         if (doc.exists) {
             return { id: doc.id, ...doc.data() };
         }
@@ -113,7 +120,10 @@ async function getWorkRecord(id) {
  */
 async function updateWorkRecord(id, updates) {
     try {
-        const workRef = db.collection('works').doc(id);
+        if (!window.db) {
+            return { success: false, message: 'Firestore not initialized. Please refresh the page.' };
+        }
+        const workRef = window.db.collection('works').doc(id);
         const workDoc = await workRef.get();
         
         if (!workDoc.exists) {
@@ -151,7 +161,10 @@ async function updateWorkRecord(id, updates) {
  */
 async function deleteWorkRecord(id) {
     try {
-        const workRef = db.collection('works').doc(id);
+        if (!window.db) {
+            return { success: false, message: 'Firestore not initialized. Please refresh the page.' };
+        }
+        const workRef = window.db.collection('works').doc(id);
         const workDoc = await workRef.get();
         
         if (!workDoc.exists) {

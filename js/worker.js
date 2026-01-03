@@ -12,8 +12,12 @@ async function addWorker(id, name, jobRole) {
     }
 
     try {
+        if (!window.db) {
+            return { success: false, message: 'Firestore not initialized. Please refresh the page.' };
+        }
+
         // Check if worker ID already exists
-        const existingDoc = await db.collection('workers').doc(id).get();
+        const existingDoc = await window.db.collection('workers').doc(id).get();
         if (existingDoc.exists) {
             return { success: false, message: 'Worker ID already exists' };
         }
@@ -24,7 +28,7 @@ async function addWorker(id, name, jobRole) {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        await db.collection('workers').doc(id.trim()).set(worker);
+        await window.db.collection('workers').doc(id.trim()).set(worker);
 
         return { 
             success: true, 
@@ -58,7 +62,8 @@ async function getAllWorkers() {
  */
 async function getWorker(id) {
     try {
-        const doc = await db.collection('workers').doc(id).get();
+        if (!window.db) return null;
+        const doc = await window.db.collection('workers').doc(id).get();
         if (doc.exists) {
             return { id: doc.id, ...doc.data() };
         }
@@ -74,7 +79,10 @@ async function getWorker(id) {
  */
 async function updateWorker(id, updates) {
     try {
-        const workerRef = db.collection('workers').doc(id);
+        if (!window.db) {
+            return { success: false, message: 'Firestore not initialized. Please refresh the page.' };
+        }
+        const workerRef = window.db.collection('workers').doc(id);
         const workerDoc = await workerRef.get();
         
         if (!workerDoc.exists) {
@@ -83,7 +91,7 @@ async function updateWorker(id, updates) {
 
         // Don't allow ID change if it conflicts
         if (updates.id && updates.id !== id) {
-            const newIdDoc = await db.collection('workers').doc(updates.id).get();
+            const newIdDoc = await window.db.collection('workers').doc(updates.id).get();
             if (newIdDoc.exists) {
                 return { success: false, message: 'Worker ID already exists' };
             }
@@ -103,7 +111,7 @@ async function updateWorker(id, updates) {
             };
 
             // Create new document with new ID
-            await db.collection('workers').doc(updates.id).set(newWorkerData);
+            await window.db.collection('workers').doc(updates.id).set(newWorkerData);
 
             // Update worker ID in related records
             await updateWorkerIdInRecords(id, updates.id);
@@ -129,22 +137,22 @@ async function updateWorker(id, updates) {
 async function updateWorkerIdInRecords(oldId, newId) {
     try {
         // Update work records
-        const workSnapshot = await db.collection('works')
+        const workSnapshot = await window.db.collection('works')
             .where('workerId', '==', oldId)
             .get();
         
-        const workBatch = db.batch();
+        const workBatch = window.db.batch();
         workSnapshot.docs.forEach(doc => {
             workBatch.update(doc.ref, { workerId: newId });
         });
         await workBatch.commit();
 
         // Update payment records
-        const paymentSnapshot = await db.collection('payments')
+        const paymentSnapshot = await window.db.collection('payments')
             .where('workerId', '==', oldId)
             .get();
         
-        const paymentBatch = db.batch();
+        const paymentBatch = window.db.batch();
         paymentSnapshot.docs.forEach(doc => {
             paymentBatch.update(doc.ref, { workerId: newId });
         });
@@ -160,7 +168,10 @@ async function updateWorkerIdInRecords(oldId, newId) {
  */
 async function deleteWorker(id) {
     try {
-        const workerRef = db.collection('workers').doc(id);
+        if (!window.db) {
+            return { success: false, message: 'Firestore not initialized. Please refresh the page.' };
+        }
+        const workerRef = window.db.collection('workers').doc(id);
         const workerDoc = await workerRef.get();
         
         if (!workerDoc.exists) {
@@ -168,22 +179,22 @@ async function deleteWorker(id) {
         }
 
         // Delete related work records
-        const workSnapshot = await db.collection('works')
+        const workSnapshot = await window.db.collection('works')
             .where('workerId', '==', id)
             .get();
         
-        const workBatch = db.batch();
+        const workBatch = window.db.batch();
         workSnapshot.docs.forEach(doc => {
             workBatch.delete(doc.ref);
         });
         await workBatch.commit();
 
         // Delete related payment records
-        const paymentSnapshot = await db.collection('payments')
+        const paymentSnapshot = await window.db.collection('payments')
             .where('workerId', '==', id)
             .get();
         
-        const paymentBatch = db.batch();
+        const paymentBatch = window.db.batch();
         paymentSnapshot.docs.forEach(doc => {
             paymentBatch.delete(doc.ref);
         });

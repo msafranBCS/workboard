@@ -14,7 +14,7 @@ async function initStorage() {
             return false;
         }
         // Test connection by attempting to read from Firestore
-        await db.collection('workers').limit(1).get();
+        await window.db.collection('workers').limit(1).get();
         return true;
     } catch (error) {
         console.error('Storage initialization error:', error);
@@ -27,7 +27,8 @@ async function initStorage() {
  */
 async function getWorkers() {
     try {
-        const snapshot = await db.collection('workers').get();
+        if (!window.db) return [];
+        const snapshot = await window.db.collection('workers').get();
         return snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
@@ -43,7 +44,8 @@ async function getWorkers() {
  */
 async function getWorkRecords() {
     try {
-        const snapshot = await db.collection('works').get();
+        if (!window.db) return [];
+        const snapshot = await window.db.collection('works').get();
         return snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
@@ -59,7 +61,8 @@ async function getWorkRecords() {
  */
 async function getPaymentRecords() {
     try {
-        const snapshot = await db.collection('payments').get();
+        if (!window.db) return [];
+        const snapshot = await window.db.collection('payments').get();
         return snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
@@ -103,25 +106,27 @@ async function getAllData() {
  */
 async function clearAllData() {
     try {
+        if (!window.db) return false;
+        
         // Delete all workers (cascade will be handled by application logic)
-        const workersSnapshot = await db.collection('workers').get();
-        const workersBatch = db.batch();
+        const workersSnapshot = await window.db.collection('workers').get();
+        const workersBatch = window.db.batch();
         workersSnapshot.docs.forEach(doc => {
             workersBatch.delete(doc.ref);
         });
         await workersBatch.commit();
 
         // Delete all work records
-        const worksSnapshot = await db.collection('works').get();
-        const worksBatch = db.batch();
+        const worksSnapshot = await window.db.collection('works').get();
+        const worksBatch = window.db.batch();
         worksSnapshot.docs.forEach(doc => {
             worksBatch.delete(doc.ref);
         });
         await worksBatch.commit();
 
         // Delete all payment records
-        const paymentsSnapshot = await db.collection('payments').get();
-        const paymentsBatch = db.batch();
+        const paymentsSnapshot = await window.db.collection('payments').get();
+        const paymentsBatch = window.db.batch();
         paymentsSnapshot.docs.forEach(doc => {
             paymentsBatch.delete(doc.ref);
         });

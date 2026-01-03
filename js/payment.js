@@ -16,8 +16,12 @@ async function addPayment(workerId, date, amount, paymentType, note) {
     }
 
     try {
+        if (!window.db) {
+            return { success: false, message: 'Firestore not initialized. Please refresh the page.' };
+        }
+
         // Validate worker exists
-        const workerDoc = await db.collection('workers').doc(workerId).get();
+        const workerDoc = await window.db.collection('workers').doc(workerId).get();
         if (!workerDoc.exists) {
             return { success: false, message: 'Worker not found' };
         }
@@ -41,7 +45,7 @@ async function addPayment(workerId, date, amount, paymentType, note) {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        const docRef = await db.collection('payments').add(paymentRecord);
+        const docRef = await window.db.collection('payments').add(paymentRecord);
         
         return { 
             success: true, 
@@ -59,7 +63,8 @@ async function addPayment(workerId, date, amount, paymentType, note) {
  */
 async function getPaymentsByWorker(workerId) {
     try {
-        const snapshot = await db.collection('payments')
+        if (!window.db) return [];
+        const snapshot = await window.db.collection('payments')
             .where('workerId', '==', workerId)
             .orderBy('date', 'desc')
             .get();
@@ -79,7 +84,8 @@ async function getPaymentsByWorker(workerId) {
  */
 async function getAllPayments() {
     try {
-        const snapshot = await db.collection('payments')
+        if (!window.db) return [];
+        const snapshot = await window.db.collection('payments')
             .orderBy('date', 'desc')
             .get();
         
@@ -98,7 +104,8 @@ async function getAllPayments() {
  */
 async function getPayment(id) {
     try {
-        const doc = await db.collection('payments').doc(id).get();
+        if (!window.db) return null;
+        const doc = await window.db.collection('payments').doc(id).get();
         if (doc.exists) {
             return { id: doc.id, ...doc.data() };
         }
@@ -114,7 +121,10 @@ async function getPayment(id) {
  */
 async function updatePayment(id, updates) {
     try {
-        const paymentRef = db.collection('payments').doc(id);
+        if (!window.db) {
+            return { success: false, message: 'Firestore not initialized. Please refresh the page.' };
+        }
+        const paymentRef = window.db.collection('payments').doc(id);
         const paymentDoc = await paymentRef.get();
         
         if (!paymentDoc.exists) {
@@ -153,7 +163,10 @@ async function updatePayment(id, updates) {
  */
 async function deletePayment(id) {
     try {
-        const paymentRef = db.collection('payments').doc(id);
+        if (!window.db) {
+            return { success: false, message: 'Firestore not initialized. Please refresh the page.' };
+        }
+        const paymentRef = window.db.collection('payments').doc(id);
         const paymentDoc = await paymentRef.get();
         
         if (!paymentDoc.exists) {

@@ -41,12 +41,12 @@ async function initAuth() {
         }
 
         // Check if admin document exists
-        const adminDoc = await db.collection('admin').doc('credentials').get();
+        const adminDoc = await window.db.collection('admin').doc('credentials').get();
         
         if (!adminDoc.exists) {
             // Create default admin
             const defaultHash = await hashPassword(DEFAULT_PASSWORD);
-            await db.collection('admin').doc('credentials').set({
+            await window.db.collection('admin').doc('credentials').set({
                 username: ADMIN_USERNAME,
                 passwordHash: defaultHash,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -91,7 +91,7 @@ async function login(username, password) {
         await initAuth();
         
         // Get admin credentials from Firestore
-        const adminDoc = await db.collection('admin').doc('credentials').get();
+        const adminDoc = await window.db.collection('admin').doc('credentials').get();
         
         if (!adminDoc.exists) {
             return { success: false, message: 'Admin credentials not found' };
